@@ -1,14 +1,19 @@
 from fastapi import FastAPI, Depends
 from sqlalchemy.orm import Session
-from sqlalchemy import text  # Import text to wrap raw SQL queries
-from database import get_db  # Import the get_db dependency
+from database import get_db 
 import crud
+from pydantic import BaseModel
 
 app = FastAPI()
 
+class User(BaseModel):
+    username: str
+    email: str
+    password: str
+
 @app.post("/users/")
-def create_user(username: str, email: str, password: str, db: Session = Depends(get_db)):
-    return crud.create_user(db, username, email, password)
+def create_user(user:User, db: Session = Depends(get_db)):
+    return crud.create_user(db, user.username, user.email, user.password)
 
 @app.get("/users/{user_id}")
 def read_user(user_id: int, db: Session = Depends(get_db)):
@@ -16,14 +21,17 @@ def read_user(user_id: int, db: Session = Depends(get_db)):
 
 @app.get("/users/username/{username}")
 def read_user_by_username(username: str, db: Session = Depends(get_db)):
+    print("get by username")
     return crud.get_user_by_username(db, username)
 
 @app.put("/users/{user_id}")
 def update_user_email(user_id: int, new_email: str, db: Session = Depends(get_db)):
+    print("put")
     return crud.update_user_email(db, user_id, new_email)
 
 @app.delete("/users/{user_id}")
 def delete_user(user_id: int, db: Session = Depends(get_db)):
+    print("delete")
     return crud.delete_user(db, user_id)
     
 
